@@ -115,7 +115,7 @@ export function settingsPage({ user, saved }) {
   ${saved ? `<p class="notice">Saved</p>` : ""}
   <label>Name <input name="name" value="${escape(user.name)}" required maxlength="80"></label>
   <label>Email <input value="${escape(user.email)}" disabled></label>
-  <button class="primary">Save</button>
+  <button class="primary save">Save</button>
 </form>`,
   });
 }

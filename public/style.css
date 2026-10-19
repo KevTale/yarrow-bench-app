@@ -143,6 +143,9 @@ select {
   border-radius: 7px;
   cursor: pointer;
 }
+.primary.save {
+  background: #1d7a4c;
+}
 .error {
   margin: 0;
   color: #c2412d;
