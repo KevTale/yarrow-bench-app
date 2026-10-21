@@ -34,6 +34,51 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("filters the tasks by status and counts each one", () => {
+  const tasks = [
+    { title: "Alpha", status: "todo", assignee: null, due_on: null },
+    { title: "Bravo", status: "doing", assignee: null, due_on: null },
+    { title: "Charlie", status: "done", assignee: null, due_on: null },
+    { title: "Delta", status: "done", assignee: null, due_on: null },
+  ];
+  const page = (status) =>
+    tasksPage({ user: { name: "Demo" }, people: [], today, tasks, status });
+
+  const all = page(undefined);
+  assert.match(
+    all,
+    /<a href="\/" aria-current="page">All <span class="count">4<\/span>/,
+  );
+  assert.match(all, /href="\/\?status=todo">To do <span class="count">1</);
+  assert.match(all, /href="\/\?status=doing">Doing <span class="count">1</);
+  assert.match(all, /href="\/\?status=done">Done <span class="count">2</);
+  for (const title of ["Alpha", "Bravo", "Charlie", "Delta"])
+    assert.match(all, new RegExp(title));
+
+  const done = page("done");
+  assert.match(done, /href="\/\?status=done" aria-current="page">Done/);
+  assert.match(done, /Charlie/);
+  assert.match(done, /Delta/);
+  assert.doesNotMatch(done, /Alpha|Bravo/);
+  assert.match(done, /All <span class="count">4</);
+  assert.match(done, /2 open/);
+
+  const unknown = page("nope");
+  assert.match(unknown, /<a href="\/" aria-current="page">All/);
+  assert.match(unknown, /Alpha/);
+});
+
+test("says when no task has that status", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [{ title: "A", status: "todo", assignee: null, due_on: null }],
+    status: "doing",
+  });
+  assert.match(html, /No tasks in Doing/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
