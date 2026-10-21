@@ -41,6 +41,7 @@ test("the settings page keeps the name typed", () => {
   });
   assert.match(html, /value="Ann &lt;3"/);
   assert.match(html, /Saved/);
+  assert.match(html, /<button class="primary save">Save<\/button>/);
 });
 
 test("a session cookie cannot be forged", () => {
