@@ -70,8 +70,23 @@ export function loginPage({ error } = {}) {
   });
 }
 
-export function tasksPage({ user, tasks, people, today = new Date() }) {
-  const rows = tasks
+const FILTERS = { "": "All", ...STATUS };
+
+export function tasksPage({ user, tasks, people, status, today = new Date() }) {
+  const current =
+    typeof status === "string" && Object.hasOwn(STATUS, status) ? status : "";
+  const shown = current
+    ? tasks.filter((task) => task.status === current)
+    : tasks;
+  const filters = Object.entries(FILTERS)
+    .map(([value, label]) => {
+      const count = value
+        ? tasks.filter((task) => task.status === value).length
+        : tasks.length;
+      return `<a href="${value ? `/?status=${value}` : "/"}"${value === current ? ` aria-current="page"` : ""}>${label} <span class="count">${count}</span></a>`;
+    })
+    .join("\n  ");
+  const rows = shown
     .map(
       (task) => `<tr>
     <td>${escape(task.title)}</td>
@@ -88,10 +103,13 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   <h1>Tasks</h1>
   <p class="muted">${tasks.filter((task) => task.status !== "done").length} open</p>
 </div>
+<nav class="filters" aria-label="Filter by status">
+  ${filters}
+</nav>
 <table class="card">
   <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th></tr></thead>
   <tbody>
-${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
+${rows || `<tr><td colspan="4" class="muted">${current ? `No tasks in ${STATUS[current]}` : "No tasks yet"}</td></tr>`}
   </tbody>
 </table>
 <form class="card add" method="post" action="/tasks">
