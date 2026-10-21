@@ -34,6 +34,62 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+const mixed = [
+  { title: "Draft", status: "todo", assignee: null, due_on: null },
+  { title: "Build", status: "doing", assignee: null, due_on: null },
+  { title: "Test", status: "doing", assignee: null, due_on: null },
+  { title: "Ship", status: "done", assignee: null, due_on: null },
+];
+const page = (status) =>
+  tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: mixed,
+    status,
+  });
+
+test("filters the task list by status, with a count on each filter", () => {
+  const html = page("doing");
+  assert.match(html, /Build/);
+  assert.match(html, /Test/);
+  assert.doesNotMatch(html, /Draft|Ship/);
+  assert.match(html, /<a href="\/">All <span class="count">4<\/span>/);
+  assert.match(
+    html,
+    /<a href="\/\?status=todo">To do <span class="count">1<\/span>/,
+  );
+  assert.match(
+    html,
+    /<a href="\/\?status=doing" aria-current="page">Doing <span class="count">2<\/span>/,
+  );
+  assert.match(
+    html,
+    /<a href="\/\?status=done">Done <span class="count">1<\/span>/,
+  );
+  assert.match(html, /3 open/);
+});
+
+test("shows every task when the filter is missing or unknown", () => {
+  for (const status of [undefined, "all", "nope", "constructor", ["doing"]]) {
+    const html = page(status);
+    for (const title of ["Draft", "Build", "Test", "Ship"])
+      assert.match(html, new RegExp(title));
+    assert.match(html, /<a href="\/" aria-current="page">All/);
+  }
+});
+
+test("says so when no task has the chosen status", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [mixed[0]],
+    status: "done",
+  });
+  assert.match(html, /No tasks with this status/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
