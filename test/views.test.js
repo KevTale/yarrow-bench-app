@@ -34,6 +34,42 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("filters tasks by status, with a count for each", () => {
+  const page = (status) =>
+    tasksPage({
+      user: { name: "Demo" },
+      people: [],
+      today,
+      status,
+      tasks: [
+        { title: "Alpha", status: "doing", assignee: null, due_on: null },
+        { title: "Bravo", status: "todo", assignee: null, due_on: null },
+        { title: "Charlie", status: "todo", assignee: null, due_on: null },
+      ],
+    });
+
+  const all = page(undefined);
+  assert.match(
+    all,
+    /<a href="\/" aria-current="page">All <span class="count">3</,
+  );
+  assert.match(all, /<a href="\/\?status=todo">To do <span class="count">2</);
+  assert.match(all, /<a href="\/\?status=doing">Doing <span class="count">1</);
+  assert.match(all, /<a href="\/\?status=done">Done <span class="count">0</);
+  assert.match(all, /Alpha[\s\S]*Bravo[\s\S]*Charlie/);
+
+  const todo = page("todo");
+  assert.match(todo, /href="\/\?status=todo" aria-current="page"/);
+  assert.match(todo, /Bravo[\s\S]*Charlie/);
+  assert.doesNotMatch(todo, /Alpha/);
+  assert.match(todo, /3 open/);
+
+  assert.match(page("done"), /No tasks in Done/);
+
+  for (const odd of ["nope", "constructor", ["doing"]])
+    assert.match(page(odd), /<a href="\/" aria-current="page">All/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },

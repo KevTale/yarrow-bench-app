@@ -151,3 +151,25 @@ select {
   margin: 0;
   color: #1d7a4c;
 }
+.filters {
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.filters a {
+  padding: 4px 12px;
+  border-radius: 999px;
+  color: #4a5160;
+  text-decoration: none;
+}
+.filters a[aria-current="page"] {
+  background: #e8e6fd;
+  color: #4b3fd8;
+  font-weight: 600;
+}
+.filters .count {
+  color: #7a8291;
+  font-size: 13px;
+}
+.filters a[aria-current="page"] .count {
+  color: inherit;
+}
