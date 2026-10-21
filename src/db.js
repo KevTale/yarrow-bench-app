@@ -23,7 +23,8 @@ export async function listUsers() {
 
 export async function listTasks() {
   const { rows } = await pool.query(
-    `SELECT tasks.id, tasks.title, tasks.status, tasks.due_on, users.name AS assignee
+    `SELECT tasks.id, tasks.title, tasks.status, tasks.due_on,
+            to_char(tasks.due_on, 'YYYY-MM-DD') AS due_on_iso, users.name AS assignee
      FROM tasks LEFT JOIN users ON users.id = tasks.assignee_id
      ORDER BY CASE tasks.status WHEN 'doing' THEN 0 WHEN 'todo' THEN 1 ELSE 2 END,
               tasks.due_on NULLS LAST, tasks.id`,

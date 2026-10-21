@@ -88,6 +88,7 @@ app.get("/api/tasks", signedIn, async (_req, res) => {
       title: task.title,
       status: task.status,
       assignee: task.assignee,
+      dueOn: task.due_on_iso,
     })),
   });
 });
