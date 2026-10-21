@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readSession, sessionValue } from "../src/auth.js";
-import { escape, formatDue, settingsPage, tasksPage } from "../src/views.js";
+import {
+  escape,
+  formatDue,
+  settingsPage,
+  statusFilter,
+  tasksPage,
+} from "../src/views.js";
 
 const today = new Date(2026, 9, 15);
 
@@ -32,6 +38,44 @@ test("lists tasks and counts the open ones", () => {
   });
   assert.match(html, /1 open/);
   assert.match(html, /Nobody/);
+});
+
+test("filters tasks by status and counts each one", () => {
+  const page = (status) =>
+    tasksPage({
+      user: { name: "Demo" },
+      people: [],
+      today,
+      status,
+      tasks: [
+        { title: "A", status: "todo", assignee: null, due_on: null },
+        { title: "B", status: "done", assignee: null, due_on: null },
+        { title: "C", status: "done", assignee: null, due_on: null },
+      ],
+    });
+  const all = page(null);
+  assert.match(all, /<a href="\/" aria-current="page">All <span class="count">3<\/span>/);
+  assert.match(all, /href="\/\?status=todo">To do <span class="count">1</);
+  assert.match(all, /href="\/\?status=doing">Doing <span class="count">0</);
+  assert.match(all, /href="\/\?status=done">Done <span class="count">2</);
+  assert.match(all, /<td>A<\/td>/);
+
+  const done = page("done");
+  assert.match(done, /href="\/\?status=done" aria-current="page">Done/);
+  assert.doesNotMatch(done, /<td>A<\/td>/);
+  assert.match(done, /<td>B<\/td>/);
+  assert.match(done, /<td>C<\/td>/);
+  assert.match(done, /1 open/);
+
+  assert.match(page("doing"), /No tasks in Doing/);
+});
+
+test("only known statuses filter the list", () => {
+  assert.equal(statusFilter("doing"), "doing");
+  assert.equal(statusFilter(undefined), null);
+  assert.equal(statusFilter("archived"), null);
+  assert.equal(statusFilter("constructor"), null);
+  assert.equal(statusFilter(["done", "todo"]), null);
 });
 
 test("the settings page keeps the name typed", () => {
