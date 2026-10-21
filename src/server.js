@@ -56,7 +56,9 @@ app.post("/logout", (_req, res) => {
 
 app.get("/", signedIn, async (req, res) => {
   const [tasks, people] = await Promise.all([listTasks(), listUsers()]);
-  res.send(tasksPage({ user: req.user, tasks, people }));
+  const status =
+    typeof req.query.status === "string" ? req.query.status : undefined;
+  res.send(tasksPage({ user: req.user, tasks, people, status }));
 });
 
 app.post("/tasks", signedIn, async (req, res) => {
