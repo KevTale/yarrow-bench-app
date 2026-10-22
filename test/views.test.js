@@ -34,42 +34,6 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
-test("filters tasks by status, with a count on each filter", () => {
-  const tasks = [
-    { title: "Alpha", status: "todo", assignee: null, due_on: null },
-    { title: "Bravo", status: "doing", assignee: null, due_on: null },
-    { title: "Charlie", status: "doing", assignee: null, due_on: null },
-    { title: "Delta", status: "done", assignee: null, due_on: null },
-  ];
-  const page = (status) =>
-    tasksPage({ user: { name: "Demo" }, people: [], today, tasks, status });
-
-  const all = page(null);
-  assert.match(all, /<a href="\/" aria-current="page">All <span class="count">4<\/span>/);
-  assert.match(all, /href="\/\?status=todo">To do <span class="count">1</);
-  assert.match(all, /href="\/\?status=doing">Doing <span class="count">2</);
-  assert.match(all, /href="\/\?status=done">Done <span class="count">1</);
-  for (const title of ["Alpha", "Bravo", "Charlie", "Delta"])
-    assert.match(all, new RegExp(title));
-
-  const doing = page("doing");
-  assert.match(doing, /href="\/\?status=doing" aria-current="page">Doing/);
-  assert.match(doing, /All <span class="count">4</);
-  assert.match(doing, /Bravo/);
-  assert.match(doing, /Charlie/);
-  assert.doesNotMatch(doing, /Alpha|Delta/);
-  assert.match(doing, /3 open/);
-
-  const none = tasksPage({
-    user: { name: "Demo" },
-    people: [],
-    today,
-    tasks: [tasks[0]],
-    status: "done",
-  });
-  assert.match(none, /No tasks in Done/);
-});
-
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
