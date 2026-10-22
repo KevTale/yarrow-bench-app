@@ -15,7 +15,7 @@ import {
   userByEmail,
   userById,
 } from "./db.js";
-import { loginPage, settingsPage, tasksPage } from "./views.js";
+import { STATUS, loginPage, settingsPage, tasksPage } from "./views.js";
 
 const secret = process.env.SESSION_SECRET;
 if (!secret) throw new Error("Set SESSION_SECRET (see .env.example)");
@@ -56,7 +56,11 @@ app.post("/logout", (_req, res) => {
 
 app.get("/", signedIn, async (req, res) => {
   const [tasks, people] = await Promise.all([listTasks(), listUsers()]);
-  res.send(tasksPage({ user: req.user, tasks, people }));
+  // Unknown or missing statuses show every task.
+  const { status: asked } = req.query;
+  const status =
+    typeof asked === "string" && Object.hasOwn(STATUS, asked) ? asked : "all";
+  res.send(tasksPage({ user: req.user, tasks, people, status }));
 });
 
 app.post("/tasks", signedIn, async (req, res) => {

@@ -34,6 +34,68 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+const mixed = [
+  { title: "Write", status: "doing", assignee: null, due_on: null },
+  { title: "Plan", status: "todo", assignee: null, due_on: null },
+  { title: "Renew", status: "done", assignee: null, due_on: null },
+  { title: "Ship", status: "done", assignee: null, due_on: null },
+];
+
+test("shows a filter per status with its count, All by default", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: mixed,
+  });
+  assert.match(
+    html,
+    /<a href="\/" aria-current="page">All <span class="count">4<\/span><\/a>/,
+  );
+  assert.match(
+    html,
+    /<a href="\/\?status=todo">To do <span class="count">1<\/span><\/a>/,
+  );
+  assert.match(
+    html,
+    /<a href="\/\?status=doing">Doing <span class="count">1<\/span><\/a>/,
+  );
+  assert.match(
+    html,
+    /<a href="\/\?status=done">Done <span class="count">2<\/span><\/a>/,
+  );
+  for (const title of ["Write", "Plan", "Renew", "Ship"])
+    assert.match(html, new RegExp(`<td>${title}</td>`));
+});
+
+test("a picked filter shows only its tasks and keeps every count", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: mixed,
+    status: "done",
+  });
+  assert.match(html, /<a href="\/\?status=done" aria-current="page">Done/);
+  assert.match(html, /All <span class="count">4<\/span>/);
+  assert.match(html, /<td>Renew<\/td>/);
+  assert.match(html, /<td>Ship<\/td>/);
+  assert.doesNotMatch(html, /<td>Write<\/td>/);
+  assert.doesNotMatch(html, /<td>Plan<\/td>/);
+  assert.match(html, /2 open/);
+});
+
+test("an empty filter says so", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: mixed.slice(1),
+    status: "doing",
+  });
+  assert.match(html, /No tasks in Doing/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
