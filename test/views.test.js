@@ -34,6 +34,53 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+const mixed = [
+  { title: "Write docs", status: "todo", assignee: null, due_on: null },
+  { title: "Fix login", status: "doing", assignee: null, due_on: null },
+  { title: "Fix export", status: "doing", assignee: null, due_on: null },
+  { title: "Ship it", status: "done", assignee: null, due_on: null },
+];
+const page = (status) =>
+  tasksPage({ user: { name: "Demo" }, people: [], today, tasks: mixed, status });
+
+test("shows every task under All by default, with a count per filter", () => {
+  const html = page(undefined);
+  assert.match(html, /<a href="\/" aria-current="page">All <span class="count">4<\/span>/);
+  assert.match(html, /<a href="\/\?status=todo">To do <span class="count">1<\/span>/);
+  assert.match(html, /<a href="\/\?status=doing">Doing <span class="count">2<\/span>/);
+  assert.match(html, /<a href="\/\?status=done">Done <span class="count">1<\/span>/);
+  for (const task of mixed) assert.match(html, new RegExp(task.title));
+});
+
+test("a status filter shows only its tasks and keeps the counts", () => {
+  const html = page("doing");
+  assert.match(html, /<a href="\/\?status=doing" aria-current="page">Doing/);
+  assert.match(html, /Fix login/);
+  assert.match(html, /Fix export/);
+  assert.doesNotMatch(html, /Write docs|Ship it/);
+  assert.match(html, /All <span class="count">4/);
+  assert.match(html, /3 open/);
+});
+
+test("an unknown status falls back to All", () => {
+  for (const status of ["nope", "toString", ["doing"]]) {
+    const html = page(status);
+    assert.match(html, /<a href="\/" aria-current="page">All/);
+    assert.match(html, /Ship it/);
+  }
+});
+
+test("an empty filter says so", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [mixed[0]],
+    status: "done",
+  });
+  assert.match(html, /No tasks in Done/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
