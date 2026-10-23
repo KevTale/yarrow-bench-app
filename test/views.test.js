@@ -34,6 +34,45 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+const mixed = [
+  { title: "Draft", status: "todo", assignee: null, due_on: null },
+  { title: "Build", status: "doing", assignee: null, due_on: null },
+  { title: "Test", status: "doing", assignee: null, due_on: null },
+];
+const page = (status) =>
+  tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: mixed,
+    status,
+  });
+
+test("filters the list by the status in the address, with counts", () => {
+  const html = page("doing");
+  assert.match(html, /href="\/">All <span class="count">3</);
+  assert.match(html, /href="\/\?status=todo">To do <span class="count">1</);
+  assert.match(
+    html,
+    /href="\/\?status=doing" aria-current="page">Doing <span class="count">2</,
+  );
+  assert.match(html, /href="\/\?status=done">Done <span class="count">0</);
+  assert.match(html, /Build/);
+  assert.match(html, /Test/);
+  assert.doesNotMatch(html, /Draft/);
+  assert.match(html, /3 open/);
+  assert.match(page("done"), /No tasks in Done/);
+});
+
+test("shows All when no or an unknown status is picked", () => {
+  for (const status of [undefined, "nope", "constructor", ["doing"]]) {
+    const html = page(status);
+    assert.match(html, /<a href="\/" aria-current="page">All/);
+    assert.match(html, /Draft/);
+    assert.match(html, /Build/);
+  }
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
