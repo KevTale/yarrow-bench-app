@@ -15,8 +15,8 @@ const DAY = 24 * 60 * 60 * 1000;
 const dayStart = (date) =>
   Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
 
-/** "Today", "Tomorrow", "Overdue · Oct 3" or "Oct 20". */
-export function formatDue(due, today = new Date()) {
+/** "Today", "Tomorrow", "Overdue · Oct 3" or "Oct 20". A done task is never overdue. */
+export function formatDue(due, today = new Date(), { done = false } = {}) {
   if (!due) return "";
   const date = due instanceof Date ? due : new Date(`${due}T00:00:00`);
   const days = Math.round((dayStart(date) - dayStart(today)) / DAY);
@@ -26,7 +26,7 @@ export function formatDue(due, today = new Date()) {
   });
   if (days === 0) return "Today";
   if (days === 1) return "Tomorrow";
-  if (days < 0) return `Overdue · ${label}`;
+  if (days < 0 && !done) return `Overdue · ${label}`;
   return label;
 }
 
@@ -72,14 +72,15 @@ export function loginPage({ error } = {}) {
 
 export function tasksPage({ user, tasks, people, today = new Date() }) {
   const rows = tasks
-    .map(
-      (task) => `<tr>
+    .map((task) => {
+      const due = formatDue(task.due_on, today, { done: task.status === "done" });
+      return `<tr>
     <td>${escape(task.title)}</td>
     <td><span class="status ${escape(task.status)}">${STATUS[task.status]}</span></td>
     <td>${escape(task.assignee ?? "Nobody")}</td>
-    <td class="${formatDue(task.due_on, today).startsWith("Overdue") ? "late" : ""}">${escape(formatDue(task.due_on, today))}</td>
-  </tr>`,
-    )
+    <td class="${due.startsWith("Overdue") ? "late" : ""}">${escape(due)}</td>
+  </tr>`;
+    })
     .join("\n");
   return layout({
     title: "Tasks",

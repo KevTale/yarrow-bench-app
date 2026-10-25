@@ -20,6 +20,25 @@ test("says when a task is due", () => {
   assert.equal(formatDue(null, today), "");
 });
 
+test("a done task past its due date is not overdue", () => {
+  assert.equal(
+    formatDue(new Date(2026, 9, 13), today, { done: true }),
+    "Oct 13",
+  );
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [
+      { title: "Late", status: "todo", assignee: null, due_on: "2026-10-12" },
+      { title: "Shipped", status: "done", assignee: null, due_on: "2026-10-13" },
+    ],
+  });
+  assert.match(html, /<td class="late">Overdue · Oct 12<\/td>/);
+  assert.match(html, /<td class="">Oct 13<\/td>/);
+  assert.doesNotMatch(html, /Overdue · Oct 13/);
+});
+
 test("lists tasks and counts the open ones", () => {
   const html = tasksPage({
     user: { name: "Demo" },
