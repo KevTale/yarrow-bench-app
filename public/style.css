@@ -52,6 +52,7 @@ h1 {
 }
 .head {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 12px;
 }
@@ -153,6 +154,7 @@ select {
 }
 .filters {
   gap: 8px;
+  margin-left: auto;
   margin-bottom: 12px;
 }
 .filters a {

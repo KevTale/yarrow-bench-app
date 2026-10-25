@@ -52,6 +52,13 @@ test("shows every task under All by default, with a count per filter", () => {
   for (const task of mixed) assert.match(html, new RegExp(task.title));
 });
 
+test("the filters sit on the title line, after the open total", () => {
+  assert.match(
+    page("doing"),
+    /<div class="head">\s*<h1>Tasks<\/h1>\s*<p class="muted">3 open<\/p>\s*<nav class="filters"[^]*?<\/nav>\s*<\/div>/,
+  );
+});
+
 test("a status filter shows only its tasks and keeps the counts", () => {
   const html = page("doing");
   assert.match(html, /<a href="\/\?status=doing" aria-current="page">Doing/);

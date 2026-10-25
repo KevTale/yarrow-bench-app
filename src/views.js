@@ -84,7 +84,7 @@ export function tasksPage({ user, tasks, people, status, today = new Date() }) {
       ([key, label]) =>
         `<a href="${key === "all" ? "/" : `/?status=${key}`}"${key === current ? ` aria-current="page"` : ""}>${label} <span class="count">${count(key)}</span></a>`,
     )
-    .join("\n  ");
+    .join("\n    ");
   const shown =
     current === "all" ? tasks : tasks.filter((task) => task.status === current);
   const empty =
@@ -105,10 +105,10 @@ export function tasksPage({ user, tasks, people, status, today = new Date() }) {
     body: `<div class="head">
   <h1>Tasks</h1>
   <p class="muted">${tasks.filter((task) => task.status !== "done").length} open</p>
+  <nav class="filters" aria-label="Filter by status">
+    ${filters}
+  </nav>
 </div>
-<nav class="filters" aria-label="Filter by status">
-  ${filters}
-</nav>
 <table class="card">
   <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th></tr></thead>
   <tbody>
