@@ -70,8 +70,21 @@ export function loginPage({ error } = {}) {
   });
 }
 
-export function tasksPage({ user, tasks, people, today = new Date() }) {
-  const rows = tasks
+export function tasksPage({ user, tasks, people, status, today = new Date() }) {
+  const active = Object.hasOwn(STATUS, status) ? status : "all";
+  const count = (key) =>
+    key === "all"
+      ? tasks.length
+      : tasks.filter((task) => task.status === key).length;
+  const filters = ["all", ...Object.keys(STATUS)]
+    .map(
+      (key) =>
+        `<a href="/?status=${key}"${key === active ? ` class="active" aria-current="page"` : ""}>${key === "all" ? "All" : STATUS[key]} (${count(key)})</a>`,
+    )
+    .join("\n    ");
+  const shown =
+    active === "all" ? tasks : tasks.filter((task) => task.status === active);
+  const rows = shown
     .map(
       (task) => `<tr>
     <td>${escape(task.title)}</td>
@@ -88,6 +101,9 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   <h1>Tasks</h1>
   <p class="muted">${tasks.filter((task) => task.status !== "done").length} open</p>
 </div>
+<nav class="filters" aria-label="Filter tasks by status">
+    ${filters}
+</nav>
 <table class="card">
   <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th></tr></thead>
   <tbody>

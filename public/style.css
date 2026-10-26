@@ -70,6 +70,25 @@ h1 {
   margin: 48px auto;
   padding: 28px;
 }
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.filters a {
+  padding: 6px 14px;
+  border: 1px solid #d5d9e0;
+  border-radius: 999px;
+  color: #4a5160;
+  background: #fff;
+  text-decoration: none;
+}
+.filters a.active {
+  color: #fff;
+  background: #4b3fd8;
+  border-color: #4b3fd8;
+}
 table.card {
   width: 100%;
   border-collapse: separate;
