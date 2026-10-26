@@ -70,6 +70,26 @@ h1 {
   margin: 48px auto;
   padding: 28px;
 }
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.filters a {
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: #4a5160;
+  text-decoration: none;
+}
+.filters a[aria-current="page"] {
+  color: #fff;
+  background: #4b3fd8;
+}
+.filters .count {
+  margin-left: 2px;
+  opacity: 0.7;
+}
 table.card {
   width: 100%;
   border-collapse: separate;

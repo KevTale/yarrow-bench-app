@@ -70,8 +70,23 @@ export function loginPage({ error } = {}) {
   });
 }
 
-export function tasksPage({ user, tasks, people, today = new Date() }) {
-  const rows = tasks
+export function tasksPage({ user, tasks, people, status = null, today = new Date() }) {
+  const active = Object.hasOwn(STATUS, status) ? status : null;
+  const filters = [
+    { key: null, label: "All", href: "/" },
+    ...Object.entries(STATUS).map(([key, label]) => ({
+      key,
+      label,
+      href: `/?status=${key}`,
+    })),
+  ]
+    .map(
+      ({ key, label, href }) =>
+        `<a href="${href}"${key === active ? ' aria-current="page"' : ""}>${label} <span class="count">${key ? tasks.filter((task) => task.status === key).length : tasks.length}</span></a>`,
+    )
+    .join("\n    ");
+  const shown = active ? tasks.filter((task) => task.status === active) : tasks;
+  const rows = shown
     .map(
       (task) => `<tr>
     <td>${escape(task.title)}</td>
@@ -88,10 +103,13 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   <h1>Tasks</h1>
   <p class="muted">${tasks.filter((task) => task.status !== "done").length} open</p>
 </div>
+<nav class="filters" aria-label="Filter by status">
+    ${filters}
+  </nav>
 <table class="card">
   <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th></tr></thead>
   <tbody>
-${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
+${rows || `<tr><td colspan="4" class="muted">${active ? `No tasks in ${STATUS[active]}` : "No tasks yet"}</td></tr>`}
   </tbody>
 </table>
 <form class="card add" method="post" action="/tasks">

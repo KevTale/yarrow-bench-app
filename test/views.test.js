@@ -34,6 +34,31 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("filters tasks by status and shows every count", () => {
+  const base = {
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [
+      { title: "Todo one", status: "todo", assignee: null, due_on: null },
+      { title: "Doing one", status: "doing", assignee: null, due_on: null },
+      { title: "Done one", status: "done", assignee: null, due_on: null },
+      { title: "Done two", status: "done", assignee: null, due_on: null },
+    ],
+  };
+  const filtered = tasksPage({ ...base, status: "doing" });
+  assert.match(filtered, /Doing one/);
+  assert.doesNotMatch(filtered, /Todo one|Done one/);
+  assert.match(filtered, /href="\/\?status=todo">To do <span class="count">1<\/span>/);
+  assert.match(filtered, /href="\/\?status=done">Done <span class="count">2<\/span>/);
+  assert.match(filtered, /aria-current="page"/);
+  assert.match(filtered, /2 open/);
+
+  const all = tasksPage(base);
+  assert.match(all, /Todo one/);
+  assert.match(all, /Done two/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
