@@ -20,6 +20,28 @@ test("says when a task is due", () => {
   assert.equal(formatDue(null, today), "");
 });
 
+test("a done task with a past due date is not overdue", () => {
+  const base = { user: { name: "Demo" }, people: [], today };
+  const done = tasksPage({
+    ...base,
+    tasks: [
+      { title: "Done task", status: "done", assignee: null, due_on: new Date(2026, 9, 13) },
+    ],
+  });
+  assert.match(done, /Oct 13/);
+  assert.doesNotMatch(done, /Overdue/);
+  assert.doesNotMatch(done, /class="late"/);
+
+  const open = tasksPage({
+    ...base,
+    tasks: [
+      { title: "Open task", status: "todo", assignee: null, due_on: new Date(2026, 9, 13) },
+    ],
+  });
+  assert.match(open, /Overdue · Oct 13/);
+  assert.match(open, /class="late"/);
+});
+
 test("lists tasks and counts the open ones", () => {
   const html = tasksPage({
     user: { name: "Demo" },
