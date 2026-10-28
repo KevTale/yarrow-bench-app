@@ -1,3 +1,5 @@
+import { formatDue } from "./date.js";
+
 const ENTITIES = {
   "&": "&amp;",
   "<": "&lt;",
@@ -10,25 +12,6 @@ export const escape = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (char) => ENTITIES[char]);
 
 export const STATUS = { todo: "To do", doing: "Doing", done: "Done" };
-
-const DAY = 24 * 60 * 60 * 1000;
-const dayStart = (date) =>
-  Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-
-/** "Today", "Tomorrow", "Overdue · Oct 3" or "Oct 20". */
-export function formatDue(due, today = new Date()) {
-  if (!due) return "";
-  const date = due instanceof Date ? due : new Date(`${due}T00:00:00`);
-  const days = Math.round((dayStart(date) - dayStart(today)) / DAY);
-  const label = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-  if (days === 0) return "Today";
-  if (days === 1) return "Tomorrow";
-  if (days < 0) return `Overdue · ${label}`;
-  return label;
-}
 
 function layout({ title, user, body }) {
   return `<!doctype html>
