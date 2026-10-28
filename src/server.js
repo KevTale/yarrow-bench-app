@@ -15,7 +15,7 @@ import {
   userByEmail,
   userById,
 } from "./db.js";
-import { loginPage, settingsPage, tasksPage } from "./views.js";
+import { loginPage, parseFilter, settingsPage, tasksPage } from "./views.js";
 
 const secret = process.env.SESSION_SECRET;
 if (!secret) throw new Error("Set SESSION_SECRET (see .env.example)");
@@ -56,7 +56,8 @@ app.post("/logout", (_req, res) => {
 
 app.get("/", signedIn, async (req, res) => {
   const [tasks, people] = await Promise.all([listTasks(), listUsers()]);
-  res.send(tasksPage({ user: req.user, tasks, people }));
+  const filter = parseFilter(req.query.status);
+  res.send(tasksPage({ user: req.user, tasks, people, filter }));
 });
 
 app.post("/tasks", signedIn, async (req, res) => {
