@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { titleMatches } from "../public/search.js";
 import { readSession, sessionValue } from "../src/auth.js";
 import { escape, formatDue, settingsPage, tasksPage } from "../src/views.js";
 
@@ -32,6 +33,27 @@ test("lists tasks and counts the open ones", () => {
   });
   assert.match(html, /1 open/);
   assert.match(html, /Nobody/);
+});
+
+test("the task list has a search field and a message for no match", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [{ title: "A", status: "todo", assignee: null, due_on: null }],
+  });
+  assert.match(html, /<input class="search" id="task-search" type="search"/);
+  assert.match(html, /<tr class="task">/);
+  assert.match(html, /<tr class="no-match" hidden>.*No tasks match/);
+  assert.match(html, /<script type="module" src="\/search.js">/);
+});
+
+test("search matches titles containing the text, whatever the case", () => {
+  assert.equal(titleMatches("Fix the export to CSV", "csv"), true);
+  assert.equal(titleMatches("Fix the export to CSV", "EXPORT"), true);
+  assert.equal(titleMatches("Fix the export to CSV", "login"), false);
+  assert.equal(titleMatches("Fix the export to CSV", ""), true);
+  assert.equal(titleMatches("Fix the export to CSV", "  "), true);
 });
 
 test("the settings page keeps the name typed", () => {
