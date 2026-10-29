@@ -123,7 +123,7 @@ export function settingsPage({ user, saved }) {
   <label class="check"><input type="checkbox" name="weeklyDigest"${user.weekly_digest ? " checked" : ""}> Email me my open tasks every Monday</label>
   <div class="actions">
     <a class="secondary" href="/">Cancel</a>
-    <button class="primary">Save</button>
+    <button class="primary save">Save</button>
   </div>
 </form>`,
   });
