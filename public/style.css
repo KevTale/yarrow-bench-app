@@ -180,7 +180,7 @@ select {
 .settings {
   display: grid;
   gap: 14px;
-  width: 520px;
+  max-width: 520px;
   margin: 48px auto;
   padding: 28px;
 }
