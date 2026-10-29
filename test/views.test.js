@@ -43,6 +43,16 @@ test("the settings page keeps the name typed", () => {
   assert.match(html, /Saved/);
 });
 
+test("no page shows the Tally Pro banner", () => {
+  const user = { name: "Demo", email: "a@b.c" };
+  for (const html of [
+    tasksPage({ user, people: [], tasks: [], today }),
+    settingsPage({ user }),
+  ]) {
+    assert.doesNotMatch(html, /Tally Pro|class="promo"/);
+  }
+});
+
 test("a session cookie cannot be forged", () => {
   const value = sessionValue(7, "secret");
   assert.equal(readSession(value, "secret"), 7);

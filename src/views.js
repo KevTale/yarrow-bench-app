@@ -52,11 +52,6 @@ function layout({ title, user, body }) {
       : ""
   }
 </header>
-${
-  user
-    ? `<div class="promo">Tally Pro is here: unlimited projects, reports and guests. <a href="https://tally.dev/pro">Try it free for 14 days</a></div>`
-    : ""
-}
 <main>${body}</main>
 </body>
 </html>`;
