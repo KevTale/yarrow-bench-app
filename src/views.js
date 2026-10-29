@@ -14,18 +14,20 @@ export const STATUS = { todo: "To do", doing: "Doing", done: "Done" };
 const DAY = 24 * 60 * 60 * 1000;
 const dayStart = (date) =>
   Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+// One formatter for every row: building one per call is slow on big lists.
+const shortDate = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+});
 
 /** "Today", "Tomorrow", "Overdue · Oct 3" or "Oct 20". */
 export function formatDue(due, today = new Date()) {
   if (!due) return "";
   const date = due instanceof Date ? due : new Date(`${due}T00:00:00`);
   const days = Math.round((dayStart(date) - dayStart(today)) / DAY);
-  const label = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
   if (days === 0) return "Today";
   if (days === 1) return "Tomorrow";
+  const label = shortDate.format(date);
   if (days < 0) return `Overdue · ${label}`;
   return label;
 }
@@ -77,14 +79,15 @@ export function loginPage({ error } = {}) {
 
 export function tasksPage({ user, tasks, people, today = new Date() }) {
   const rows = tasks
-    .map(
-      (task) => `<tr>
+    .map((task) => {
+      const due = formatDue(task.due_on, today);
+      return `<tr>
     <td>${escape(task.title)}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
     <td><span class="status ${escape(task.status)}">${STATUS[task.status]}</span></td>
     <td>${escape(task.assignee ?? "Nobody")}</td>
-    <td class="${formatDue(task.due_on, today).startsWith("Overdue") ? "late" : ""}">${escape(formatDue(task.due_on, today))}</td>
-  </tr>`,
-    )
+    <td class="${due.startsWith("Overdue") ? "late" : ""}">${escape(due)}</td>
+  </tr>`;
+    })
     .join("\n");
   return layout({
     title: "Tasks",

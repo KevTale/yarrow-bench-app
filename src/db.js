@@ -31,22 +31,16 @@ export async function usersWithDigest() {
 const ORDER = `ORDER BY CASE tasks.status WHEN 'doing' THEN 0 WHEN 'todo' THEN 1 ELSE 2 END,
               tasks.due_on NULLS LAST, tasks.id`;
 
-export async function countComments(taskId) {
-  const { rows } = await pool.query(
-    "SELECT count(*)::int AS count FROM comments WHERE task_id = $1",
-    [taskId],
-  );
-  return rows[0].count;
-}
-
 /** Every task, with its assignee's name and how many comments it has. */
 export async function listTasks() {
   const { rows } = await pool.query(
-    `SELECT tasks.id, tasks.title, tasks.status, tasks.due_on, users.name AS assignee
+    `SELECT tasks.id, tasks.title, tasks.status, tasks.due_on, users.name AS assignee,
+            coalesce(counts.comments, 0) AS comments
      FROM tasks LEFT JOIN users ON users.id = tasks.assignee_id
+     LEFT JOIN (SELECT task_id, count(*)::int AS comments FROM comments GROUP BY task_id) counts
+       ON counts.task_id = tasks.id
      ${ORDER}`,
   );
-  for (const task of rows) task.comments = await countComments(task.id);
   return rows;
 }
 
