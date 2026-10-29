@@ -11,10 +11,11 @@
     "start": "node src/server.js",
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
-    "test": "node --test"
+    "test": "node --test",
+    "digest": "node scripts/digest.js"
   },
   "dependencies": {
     "express": "^5.1.0",
-    "pg": "^8.13.0"
+    "pg": "8.11.0"
   }
 }

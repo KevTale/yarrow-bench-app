@@ -1,6 +1,10 @@
 * {
   box-sizing: border-box;
 }
+html,
+body {
+  overflow-x: hidden;
+}
 body {
   margin: 0;
   font:
@@ -150,4 +154,48 @@ select {
 .notice {
   margin: 0;
   color: #1d7a4c;
+}
+.promo {
+  padding: 10px 32px;
+  background: #4b3fd8;
+  color: #fff;
+  font-size: 14px;
+  text-align: center;
+}
+.promo a {
+  color: #fff;
+  font-weight: 600;
+}
+.comments {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #eef0f3;
+  font-size: 12px;
+  color: #4a5160;
+  text-align: center;
+}
+.settings {
+  display: grid;
+  gap: 14px;
+  width: 520px;
+  margin: 48px auto;
+  padding: 28px;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+.secondary {
+  color: #4a5160;
+  text-decoration: none;
 }

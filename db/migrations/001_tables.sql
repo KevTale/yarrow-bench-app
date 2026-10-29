@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
   id serial PRIMARY KEY,
   email text NOT NULL UNIQUE,
   name text NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS tasks (
+CREATE TABLE tasks (
   id serial PRIMARY KEY,
   title text NOT NULL,
   status text NOT NULL DEFAULT 'todo' CHECK (status IN ('todo', 'doing', 'done')),

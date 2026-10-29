@@ -52,6 +52,11 @@ function layout({ title, user, body }) {
       : ""
   }
 </header>
+${
+  user
+    ? `<div class="promo">Tally Pro is here: unlimited projects, reports and guests. <a href="https://tally.dev/pro">Try it free for 14 days</a></div>`
+    : ""
+}
 <main>${body}</main>
 </body>
 </html>`;
@@ -74,7 +79,7 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   const rows = tasks
     .map(
       (task) => `<tr>
-    <td>${escape(task.title)}</td>
+    <td>${escape(task.title)}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
     <td><span class="status ${escape(task.status)}">${STATUS[task.status]}</span></td>
     <td>${escape(task.assignee ?? "Nobody")}</td>
     <td class="${formatDue(task.due_on, today).startsWith("Overdue") ? "late" : ""}">${escape(formatDue(task.due_on, today))}</td>
@@ -110,12 +115,16 @@ export function settingsPage({ user, saved }) {
   return layout({
     title: "Settings",
     user,
-    body: `<form class="card narrow" method="post" action="/settings">
+    body: `<form class="card settings" method="post" action="/settings">
   <h1>Settings</h1>
   ${saved ? `<p class="notice">Saved</p>` : ""}
   <label>Name <input name="name" value="${escape(user.name)}" required maxlength="80"></label>
   <label>Email <input value="${escape(user.email)}" disabled></label>
-  <button class="primary">Save</button>
+  <label class="check"><input type="checkbox" name="weeklyDigest"${user.weekly_digest ? " checked" : ""}> Email me my open tasks every Monday</label>
+  <div class="actions">
+    <a class="secondary" href="/">Cancel</a>
+    <button class="primary">Save</button>
+  </div>
 </form>`,
   });
 }

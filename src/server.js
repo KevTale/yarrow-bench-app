@@ -11,7 +11,7 @@ import {
   addTask,
   listTasks,
   listUsers,
-  renameUser,
+  updateSettings,
   userByEmail,
   userById,
 } from "./db.js";
@@ -75,8 +75,11 @@ app.get("/settings", signedIn, (req, res) =>
 );
 
 app.post("/settings", signedIn, async (req, res) => {
-  const name = (req.body.name ?? "").trim();
-  if (name) await renameUser(req.user.id, name.slice(0, 80));
+  const name = (req.body.name ?? "").trim() || req.user.name;
+  await updateSettings(req.user.id, {
+    name: name.slice(0, 80),
+    weeklyDigest: req.body.weeklyDigest === "on",
+  });
   res.redirect("/settings?saved=1");
 });
 
