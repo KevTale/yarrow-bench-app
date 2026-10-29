@@ -26,6 +26,55 @@ MAIL_TRANSPORT=file npm run digest   # writes each email to outbox/
 
 Production runs it every Monday at 8:00 with `MAIL_TRANSPORT=smtp`.
 
+## API
+
+### `GET /api/tasks`
+
+Every task of the team, as JSON: in progress first, then to do, then done, each group by due date.
+
+It needs a signed-in session: the `session` cookie set by `POST /login`. Without it, the request is redirected to `/login` (`302`), not answered with JSON.
+
+```bash
+curl -c cookies.txt -d 'email=demo@tally.dev&password=demo1234' http://localhost:3000/login
+curl -b cookies.txt http://localhost:3000/api/tasks
+```
+
+The answer is an object with one field, `tasks`, a list in which each task has:
+
+| Field      | Type           | What it is                                                  |
+| ---------- | -------------- | ----------------------------------------------------------- |
+| `id`       | number         | The task's id.                                              |
+| `title`    | string         | The task's title.                                           |
+| `status`   | string         | `"todo"`, `"doing"` or `"done"`.                            |
+| `assignee` | string or null | The name of the person it is assigned to, `null` if nobody. |
+
+Example, with the demo data (cut to three tasks):
+
+```json
+{
+  "tasks": [
+    {
+      "id": 2,
+      "title": "Fix the export to CSV",
+      "status": "doing",
+      "assignee": "Léa Martin"
+    },
+    {
+      "id": 5,
+      "title": "Update the team page",
+      "status": "todo",
+      "assignee": null
+    },
+    {
+      "id": 8,
+      "title": "Ship the new login page",
+      "status": "done",
+      "assignee": "Demo User"
+    }
+  ]
+}
+```
+
 ## Test
 
 ```bash
