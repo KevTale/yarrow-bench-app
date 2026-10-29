@@ -78,7 +78,7 @@ export function loginPage({ error } = {}) {
 export function tasksPage({ user, tasks, people, today = new Date() }) {
   const rows = tasks
     .map(
-      (task) => `<tr>
+      (task) => `<tr data-title="${escape(task.title)}">
     <td>${escape(task.title)}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
     <td><span class="status ${escape(task.status)}">${STATUS[task.status]}</span></td>
     <td>${escape(task.assignee ?? "Nobody")}</td>
@@ -93,10 +93,12 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   <h1>Tasks</h1>
   <p class="muted">${tasks.filter((task) => task.status !== "done").length} open</p>
 </div>
+<input id="search" class="search" type="search" placeholder="Search tasks by title" aria-label="Search tasks by title" autocomplete="off">
 <table class="card">
   <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th></tr></thead>
   <tbody>
 ${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
+<tr id="no-match" hidden><td colspan="4" class="muted"></td></tr>
   </tbody>
 </table>
 <form class="card add" method="post" action="/tasks">
@@ -107,7 +109,8 @@ ${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
   </select>
   <input name="dueOn" type="date">
   <button class="primary">Add</button>
-</form>`,
+</form>
+<script type="module" src="/search.js"></script>`,
   });
 }
 

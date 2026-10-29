@@ -199,3 +199,8 @@ select {
   color: #4a5160;
   text-decoration: none;
 }
+.search {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+}
