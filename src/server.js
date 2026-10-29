@@ -15,7 +15,7 @@ import {
   userByEmail,
   userById,
 } from "./db.js";
-import { loginPage, settingsPage, tasksPage } from "./views.js";
+import { loginPage, PRIORITY, settingsPage, tasksPage } from "./views.js";
 
 const secret = process.env.SESSION_SECRET;
 if (!secret) throw new Error("Set SESSION_SECRET (see .env.example)");
@@ -60,12 +60,16 @@ app.get("/", signedIn, async (req, res) => {
 });
 
 app.post("/tasks", signedIn, async (req, res) => {
+  const priority = req.body.priority ?? "normal";
+  if (typeof priority !== "string" || !Object.hasOwn(PRIORITY, priority))
+    return res.status(400).send("Priority must be low, normal or high");
   const title = (req.body.title ?? "").trim();
   if (title)
     await addTask({
       title: title.slice(0, 200),
       assigneeId: Number(req.body.assigneeId) || null,
       dueOn: req.body.dueOn,
+      priority,
     });
   res.redirect("/");
 });
@@ -90,10 +94,15 @@ app.get("/api/tasks", signedIn, async (_req, res) => {
       id: task.id,
       title: task.title,
       status: task.status,
+      priority: task.priority,
       assignee: task.assignee,
     })),
   });
 });
 
-const port = Number(process.env.PORT) || 3000;
-app.listen(port, () => console.log(`Tally on http://localhost:${port}`));
+export default app;
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const port = Number(process.env.PORT) || 3000;
+  app.listen(port, () => console.log(`Tally on http://localhost:${port}`));
+}
