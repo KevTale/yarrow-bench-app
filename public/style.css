@@ -199,3 +199,27 @@ select {
   color: #4a5160;
   text-decoration: none;
 }
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.filters a {
+  padding: 6px 14px;
+  border: 1px solid #e3e6eb;
+  border-radius: 999px;
+  background: #fff;
+  color: #4a5160;
+  text-decoration: none;
+  font-size: 14px;
+}
+.filters a[aria-current="page"] {
+  border-color: #4b3fd8;
+  background: #4b3fd8;
+  color: #fff;
+}
+.filters .count {
+  margin-left: 4px;
+  opacity: 0.75;
+}
