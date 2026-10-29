@@ -36,6 +36,7 @@ npm test
 
 - `src/server.js`: routes (pages and `/api/tasks`).
 - `src/views.js`: the HTML of each page.
+- `src/due.js`: how a due date reads ("Today", "Overdue · Oct 3"…), in the app and the digest.
 - `src/digest.js`: the weekly digest email. `src/mail.js`: sending it.
 - `src/auth.js`: passwords and the signed session cookie.
 - `src/db.js`: queries.
