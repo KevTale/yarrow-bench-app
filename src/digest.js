@@ -1,23 +1,5 @@
+import { formatDue } from "./due.js";
 import { escape, STATUS } from "./views.js";
-
-const DAY = 24 * 60 * 60 * 1000;
-const dayStart = (date) =>
-  Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
-
-/** The due date as the digest says it: "Today", "Tomorrow", "Overdue · Oct 3" or "Oct 20". */
-export function dueLabel(due, today = new Date()) {
-  if (!due) return "";
-  const date = due instanceof Date ? due : new Date(`${due}T00:00:00`);
-  const days = Math.round((dayStart(date) - dayStart(today)) / DAY);
-  const label = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-  if (days === 0) return "Today";
-  if (days === 1) return "Tomorrow";
-  if (days < 0) return `Overdue · ${label}`;
-  return label;
-}
 
 /** The weekly digest of one person's open tasks, as HTML and plain text. */
 export function digestEmail({ user, tasks, today = new Date() }) {
@@ -28,7 +10,7 @@ export function digestEmail({ user, tasks, today = new Date() }) {
       (task) => `<tr>
       <td style="padding:10px 0;border-bottom:1px solid #eef0f3">${escape(task.title)}</td>
       <td style="padding:10px 0;border-bottom:1px solid #eef0f3;color:#7a8291">${STATUS[task.status]}</td>
-      <td style="padding:10px 0;border-bottom:1px solid #eef0f3;text-align:right">${escape(dueLabel(task.due_on, today))}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #eef0f3;text-align:right">${escape(formatDue(task.due_on, today))}</td>
     </tr>`,
     )
     .join("\n");
@@ -50,7 +32,7 @@ export function digestEmail({ user, tasks, today = new Date() }) {
     "",
     ...open.map(
       (task) =>
-        `- ${task.title} (${STATUS[task.status]}${task.due_on ? `, ${dueLabel(task.due_on, today)}` : ""})`,
+        `- ${task.title} (${STATUS[task.status]}${task.due_on ? `, ${formatDue(task.due_on, today)}` : ""})`,
     ),
   ].join("\n");
   return { subject, html, text };

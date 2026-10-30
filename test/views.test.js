@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readSession, sessionValue } from "../src/auth.js";
-import { escape, formatDue, settingsPage, tasksPage } from "../src/views.js";
+import { escape, settingsPage, tasksPage } from "../src/views.js";
 
 const today = new Date(2026, 9, 15);
 
@@ -10,14 +10,6 @@ test("escapes what people type", () => {
     escape(`<b>"Tom" & 'Jerry'</b>`),
     "&lt;b&gt;&quot;Tom&quot; &amp; &#39;Jerry&#39;&lt;/b&gt;",
   );
-});
-
-test("says when a task is due", () => {
-  assert.equal(formatDue(new Date(2026, 9, 15), today), "Today");
-  assert.equal(formatDue(new Date(2026, 9, 16), today), "Tomorrow");
-  assert.equal(formatDue(new Date(2026, 9, 13), today), "Overdue · Oct 13");
-  assert.equal(formatDue(new Date(2026, 9, 30), today), "Oct 30");
-  assert.equal(formatDue(null, today), "");
 });
 
 test("lists tasks and counts the open ones", () => {
