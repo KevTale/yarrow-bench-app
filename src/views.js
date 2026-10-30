@@ -10,6 +10,7 @@ export const escape = (value) =>
   String(value ?? "").replace(/[&<>"']/g, (char) => ENTITIES[char]);
 
 export const STATUS = { todo: "To do", doing: "Doing", done: "Done" };
+export const PRIORITY = { low: "Low", normal: "Normal", high: "High" };
 
 const DAY = 24 * 60 * 60 * 1000;
 const dayStart = (date) =>
@@ -79,7 +80,7 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   const rows = tasks
     .map(
       (task) => `<tr>
-    <td>${escape(task.title)}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
+    <td>${escape(task.title)}${task.priority === "high" ? ` <span class="priority high">High</span>` : ""}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
     <td><span class="status ${escape(task.status)}">${STATUS[task.status]}</span></td>
     <td>${escape(task.assignee ?? "Nobody")}</td>
     <td class="${formatDue(task.due_on, today).startsWith("Overdue") ? "late" : ""}">${escape(formatDue(task.due_on, today))}</td>
@@ -104,6 +105,9 @@ ${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
   <select name="assigneeId">
     <option value="">Nobody</option>
     ${people.map((person) => `<option value="${person.id}">${escape(person.name)}</option>`).join("")}
+  </select>
+  <select name="priority" aria-label="Priority">
+    ${Object.entries(PRIORITY).map(([value, label]) => `<option value="${value}"${value === "normal" ? " selected" : ""}>${label}</option>`).join("")}
   </select>
   <input name="dueOn" type="date">
   <button class="primary">Add</button>
