@@ -184,6 +184,9 @@ select {
   margin: 48px auto;
   padding: 28px;
 }
+.settings .primary {
+  background: #1d7a4c;
+}
 .check {
   display: flex;
   align-items: center;
