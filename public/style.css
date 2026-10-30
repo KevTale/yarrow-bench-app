@@ -74,6 +74,10 @@ h1 {
   margin: 48px auto;
   padding: 28px;
 }
+.search {
+  width: 100%;
+  margin-bottom: 12px;
+}
 table.card {
   width: 100%;
   border-collapse: separate;

@@ -34,6 +34,19 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("the task list has a search field and each row carries its title", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [{ title: `Fix "CSV" <export>`, status: "todo", due_on: null }],
+  });
+  assert.match(html, /<input[^>]* id="search" type="search"/);
+  assert.match(html, /<tr data-title="Fix &quot;CSV&quot; &lt;export&gt;">/);
+  assert.match(html, /<tr id="no-match" hidden>/);
+  assert.match(html, /<script src="\/search.js" defer><\/script>/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
