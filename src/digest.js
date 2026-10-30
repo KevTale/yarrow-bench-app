@@ -4,11 +4,21 @@ const DAY = 24 * 60 * 60 * 1000;
 const dayStart = (date) =>
   Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
 
+const toDate = (due) =>
+  due instanceof Date ? due : new Date(`${due}T00:00:00`);
+const daysUntil = (date, today) =>
+  Math.round((dayStart(date) - dayStart(today)) / DAY);
+
+/** Whether a due date is before today. */
+export function isOverdue(due, today = new Date()) {
+  return Boolean(due) && daysUntil(toDate(due), today) < 0;
+}
+
 /** The due date as the digest says it: "Today", "Tomorrow", "Overdue · Oct 3" or "Oct 20". */
 export function dueLabel(due, today = new Date()) {
   if (!due) return "";
-  const date = due instanceof Date ? due : new Date(`${due}T00:00:00`);
-  const days = Math.round((dayStart(date) - dayStart(today)) / DAY);
+  const date = toDate(due);
+  const days = daysUntil(date, today);
   const label = date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -23,13 +33,27 @@ export function dueLabel(due, today = new Date()) {
 export function digestEmail({ user, tasks, today = new Date() }) {
   const open = tasks.filter((task) => task.status !== "done");
   const subject = `Your week in Tally: ${open.length} open task${open.length === 1 ? "" : "s"}`;
-  const items = open
+  const overdue = open.filter((task) => isOverdue(task.due_on, today));
+  const later = open.filter((task) => !isOverdue(task.due_on, today));
+  // Overdue first, under its own heading; a section with no task is left out.
+  const sections = [
+    { heading: "Overdue", tasks: overdue },
+    { heading: "This week and later", tasks: later },
+  ].filter((section) => section.tasks.length);
+  const items = sections
     .map(
-      (task) => `<tr>
+      (section, index) => `<tr>
+      <th colspan="3" style="padding:${index ? 20 : 0}px 0 4px;font-size:15px;text-align:left">${section.heading}</th>
+    </tr>
+${section.tasks
+  .map(
+    (task) => `<tr>
       <td style="padding:10px 0;border-bottom:1px solid #eef0f3">${escape(task.title)}</td>
       <td style="padding:10px 0;border-bottom:1px solid #eef0f3;color:#7a8291">${STATUS[task.status]}</td>
       <td style="padding:10px 0;border-bottom:1px solid #eef0f3;text-align:right">${escape(dueLabel(task.due_on, today))}</td>
     </tr>`,
+  )
+  .join("\n")}`,
     )
     .join("\n");
   const html = `<!doctype html>
@@ -48,10 +72,14 @@ export function digestEmail({ user, tasks, today = new Date() }) {
   const text = [
     `Hi ${user.name.split(" ")[0]}, here is your week`,
     "",
-    ...open.map(
-      (task) =>
-        `- ${task.title} (${STATUS[task.status]}${task.due_on ? `, ${dueLabel(task.due_on, today)}` : ""})`,
-    ),
+    ...sections.flatMap((section, index) => [
+      ...(index ? [""] : []),
+      section.heading,
+      ...section.tasks.map(
+        (task) =>
+          `- ${task.title} (${STATUS[task.status]}${task.due_on ? `, ${dueLabel(task.due_on, today)}` : ""})`,
+      ),
+    ]),
   ].join("\n");
   return { subject, html, text };
 }
