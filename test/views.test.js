@@ -34,6 +34,21 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("shows each task's comments and when it is due", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [
+      { title: "A", status: "todo", comments: 2, due_on: "2026-10-13" },
+      { title: "B", status: "todo", comments: 0, due_on: "2026-10-30" },
+    ],
+  });
+  assert.match(html, /title="2 comments">2</);
+  assert.match(html, /<td class="late">Overdue · Oct 13<\/td>/);
+  assert.match(html, /<td class="">Oct 30<\/td>/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
