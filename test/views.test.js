@@ -34,6 +34,16 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("no page shows the Tally Pro banner", () => {
+  const user = { name: "Demo", email: "a@b.c" };
+  for (const html of [
+    tasksPage({ user, people: [], tasks: [], today }),
+    settingsPage({ user }),
+  ]) {
+    assert.doesNotMatch(html, /Tally Pro|class="promo"/);
+  }
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
