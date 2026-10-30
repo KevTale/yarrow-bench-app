@@ -30,6 +30,13 @@ export function formatDue(due, today = new Date()) {
   return label;
 }
 
+/** A date as "2026-10-20", or null when there is none. */
+export function isoDate(date) {
+  if (!date) return null;
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 function layout({ title, user, body }) {
   return `<!doctype html>
 <html lang="en">

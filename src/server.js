@@ -15,7 +15,7 @@ import {
   userByEmail,
   userById,
 } from "./db.js";
-import { loginPage, settingsPage, tasksPage } from "./views.js";
+import { isoDate, loginPage, settingsPage, tasksPage } from "./views.js";
 
 const secret = process.env.SESSION_SECRET;
 if (!secret) throw new Error("Set SESSION_SECRET (see .env.example)");
@@ -91,6 +91,7 @@ app.get("/api/tasks", signedIn, async (_req, res) => {
       title: task.title,
       status: task.status,
       assignee: task.assignee,
+      dueOn: isoDate(task.due_on),
     })),
   });
 });
