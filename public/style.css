@@ -177,6 +177,16 @@ select {
   color: #4a5160;
   text-align: center;
 }
+.priority.high {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #fde8e4;
+  color: #c2412d;
+  font-size: 12px;
+  font-weight: 600;
+}
 .settings {
   display: grid;
   gap: 14px;
