@@ -26,6 +26,45 @@ MAIL_TRANSPORT=file npm run digest   # writes each email to outbox/
 
 Production runs it every Monday at 8:00 with `MAIL_TRANSPORT=smtp`.
 
+## API
+
+### `GET /api/tasks`
+
+Every task of the team, as JSON.
+
+It needs a signed-in session: send the `session` cookie that `POST /login`
+sets. Without a valid session the API answers `302 Found` with
+`Location: /login`, like the pages do, not a JSON error.
+
+```bash
+curl -c cookies.txt -d 'email=demo@tally.dev&password=demo1234' http://localhost:3000/login
+curl -b cookies.txt http://localhost:3000/api/tasks
+```
+
+The response is an object with a `tasks` array. Each task has:
+
+| Field      | Type           | What it is                                              |
+| ---------- | -------------- | ------------------------------------------------------- |
+| `id`       | integer        | The task's id.                                          |
+| `title`    | string         | The task's title.                                       |
+| `status`   | string         | `"todo"`, `"doing"` or `"done"`.                        |
+| `assignee` | string or null | The assignee's name, or `null` when nobody is assigned. |
+
+Tasks come in doing, to do, then done order; within a status, by due date
+(tasks without one last), then by id.
+
+Example response, from the demo data (cut to three tasks):
+
+```json
+{
+  "tasks": [
+    { "id": 2, "title": "Fix the export to CSV", "status": "doing", "assignee": "Léa Martin" },
+    { "id": 5, "title": "Update the team page", "status": "todo", "assignee": null },
+    { "id": 7, "title": "Renew the domain", "status": "done", "assignee": "Sam Okafor" }
+  ]
+}
+```
+
 ## Test
 
 ```bash
