@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readSession, sessionValue } from "../src/auth.js";
-import { escape, formatDue, settingsPage, tasksPage } from "../src/views.js";
+import {
+  escape,
+  formatDue,
+  isoDate,
+  settingsPage,
+  tasksPage,
+} from "../src/views.js";
 
 const today = new Date(2026, 9, 15);
 
@@ -18,6 +24,13 @@ test("says when a task is due", () => {
   assert.equal(formatDue(new Date(2026, 9, 13), today), "Overdue · Oct 13");
   assert.equal(formatDue(new Date(2026, 9, 30), today), "Oct 30");
   assert.equal(formatDue(null, today), "");
+});
+
+test("gives the due date as YYYY-MM-DD, or null", () => {
+  assert.equal(isoDate(new Date(2026, 9, 5)), "2026-10-05");
+  assert.equal(isoDate(new Date(2026, 0, 1)), "2026-01-01");
+  assert.equal(isoDate("2026-10-20"), "2026-10-20");
+  assert.equal(isoDate(null), null);
 });
 
 test("lists tasks and counts the open ones", () => {

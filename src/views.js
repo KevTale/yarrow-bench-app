@@ -30,6 +30,14 @@ export function formatDue(due, today = new Date()) {
   return label;
 }
 
+/** The due date as "2026-10-03", or null. pg reads a date as local midnight, so this reads it back in local time. */
+export function isoDate(due) {
+  if (!due) return null;
+  if (!(due instanceof Date)) return String(due).slice(0, 10);
+  const pad = (number) => String(number).padStart(2, "0");
+  return `${due.getFullYear()}-${pad(due.getMonth() + 1)}-${pad(due.getDate())}`;
+}
+
 function layout({ title, user, body }) {
   return `<!doctype html>
 <html lang="en">
