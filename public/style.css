@@ -111,6 +111,16 @@ tbody tr:last-child td {
   background: #e3f5ec;
   color: #1d7a4c;
 }
+.priority.high {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #fde8e4;
+  color: #c2412d;
+  font-size: 12px;
+  font-weight: 600;
+}
 .late {
   color: #c2412d;
 }

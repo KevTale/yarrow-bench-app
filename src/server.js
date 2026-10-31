@@ -15,7 +15,7 @@ import {
   userByEmail,
   userById,
 } from "./db.js";
-import { loginPage, settingsPage, tasksPage } from "./views.js";
+import { loginPage, PRIORITY, settingsPage, tasksPage } from "./views.js";
 
 const secret = process.env.SESSION_SECRET;
 if (!secret) throw new Error("Set SESSION_SECRET (see .env.example)");
@@ -66,6 +66,9 @@ app.post("/tasks", signedIn, async (req, res) => {
       title: title.slice(0, 200),
       assigneeId: Number(req.body.assigneeId) || null,
       dueOn: req.body.dueOn,
+      priority: Object.hasOwn(PRIORITY, req.body.priority)
+        ? req.body.priority
+        : "normal",
     });
   res.redirect("/");
 });
@@ -90,6 +93,7 @@ app.get("/api/tasks", signedIn, async (_req, res) => {
       id: task.id,
       title: task.title,
       status: task.status,
+      priority: task.priority,
       assignee: task.assignee,
     })),
   });
