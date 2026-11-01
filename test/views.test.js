@@ -34,6 +34,53 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("only done tasks can be archived, and the archived ones are hidden until asked for", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [
+      { id: 1, title: "A", status: "todo", assignee: null, due_on: null },
+      { id: 2, title: "B", status: "done", assignee: null, due_on: null },
+    ],
+  });
+  assert.doesNotMatch(html, /action="\/tasks\/1\/archive"/);
+  assert.match(
+    html,
+    /action="\/tasks\/2\/archive"><button class="small">Archive</,
+  );
+  assert.match(html, /href="\/\?archived=1">Show archived</);
+  assert.doesNotMatch(html, /Restore/);
+});
+
+test("the archived tasks each have a Restore button", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [],
+    archived: [
+      {
+        id: 3,
+        title: "Old <one>",
+        status: "done",
+        assignee: null,
+        due_on: null,
+      },
+    ],
+  });
+  assert.match(html, /Old &lt;one&gt;/);
+  assert.match(
+    html,
+    /action="\/tasks\/3\/restore\?archived=1"><button class="small">Restore</,
+  );
+  assert.match(html, /href="\/">Hide archived</);
+  assert.match(
+    tasksPage({ user: {}, people: [], tasks: [], archived: [] }),
+    /No archived tasks/,
+  );
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },

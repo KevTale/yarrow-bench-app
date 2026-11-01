@@ -199,3 +199,39 @@ select {
   color: #4a5160;
   text-decoration: none;
 }
+.row-action {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+.row-action form {
+  margin: 0;
+}
+.small {
+  font: inherit;
+  font-size: 13px;
+  padding: 1px 10px;
+  color: #4a5160;
+  background: #fff;
+  border: 1px solid #d5d9e0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.small:hover {
+  border-color: #4b3fd8;
+  color: #4b3fd8;
+}
+.archived-toggle {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+.archived-toggle a {
+  color: #4b3fd8;
+}
+h2 {
+  margin: 24px 0 12px;
+  font-size: 17px;
+}
+table.archived {
+  color: #4a5160;
+}
