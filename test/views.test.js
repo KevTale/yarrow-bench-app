@@ -34,6 +34,24 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("badges tasks that are not normal and defaults new ones to normal", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [
+      { title: "A", status: "todo", priority: "urgent", due_on: null },
+      { title: "B", status: "todo", priority: "normal", due_on: null },
+      { title: "C", status: "todo", priority: "low", due_on: null },
+    ],
+  });
+  assert.match(html, /<span class="priority urgent">Urgent<\/span>/);
+  assert.match(html, /<span class="priority low">Low<\/span>/);
+  assert.doesNotMatch(html, /class="priority normal"/);
+  assert.match(html, /<select name="priority"/);
+  assert.match(html, /<option value="normal" selected>Normal priority<\/option>/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
