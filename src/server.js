@@ -9,8 +9,10 @@ import {
 } from "./auth.js";
 import {
   addTask,
+  archiveTask,
   listTasks,
   listUsers,
+  restoreTask,
   updateSettings,
   userByEmail,
   userById,
@@ -55,8 +57,13 @@ app.post("/logout", (_req, res) => {
 });
 
 app.get("/", signedIn, async (req, res) => {
-  const [tasks, people] = await Promise.all([listTasks(), listUsers()]);
-  res.send(tasksPage({ user: req.user, tasks, people }));
+  const showArchived = req.query.archived === "1";
+  const [tasks, people, archived] = await Promise.all([
+    listTasks({ archived: false }),
+    listUsers(),
+    showArchived ? listTasks({ archived: true }) : null,
+  ]);
+  res.send(tasksPage({ user: req.user, tasks, people, archived }));
 });
 
 app.post("/tasks", signedIn, async (req, res) => {
@@ -68,6 +75,22 @@ app.post("/tasks", signedIn, async (req, res) => {
       dueOn: req.body.dueOn,
     });
   res.redirect("/");
+});
+
+// Back to the list, keeping the archived tasks shown when they were.
+const backToList = (req, res) =>
+  res.redirect(req.query.archived === "1" ? "/?archived=1" : "/");
+
+app.post("/tasks/:id/archive", signedIn, async (req, res) => {
+  const id = Number(req.params.id);
+  if (Number.isInteger(id)) await archiveTask(id);
+  backToList(req, res);
+});
+
+app.post("/tasks/:id/restore", signedIn, async (req, res) => {
+  const id = Number(req.params.id);
+  if (Number.isInteger(id)) await restoreTask(id);
+  backToList(req, res);
 });
 
 app.get("/settings", signedIn, (req, res) =>

@@ -75,17 +75,41 @@ export function loginPage({ error } = {}) {
   });
 }
 
-export function tasksPage({ user, tasks, people, today = new Date() }) {
-  const rows = tasks
+/** Rows of a task table; action(task) gives the button at the end of a row. */
+function taskRows(tasks, today, action) {
+  return tasks
     .map(
       (task) => `<tr>
     <td>${escape(task.title)}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
     <td><span class="status ${escape(task.status)}">${STATUS[task.status]}</span></td>
     <td>${escape(task.assignee ?? "Nobody")}</td>
     <td class="${formatDue(task.due_on, today).startsWith("Overdue") ? "late" : ""}">${escape(formatDue(task.due_on, today))}</td>
+    <td class="row-action">${action(task)}</td>
   </tr>`,
     )
     .join("\n");
+}
+
+const taskButton = (task, verb, label, archivedShown) =>
+  `<form method="post" action="/tasks/${Number(task.id)}/${verb}${archivedShown ? "?archived=1" : ""}"><button class="small">${label}</button></form>`;
+
+/** archived: the archived tasks when they are shown, null otherwise. */
+export function tasksPage({
+  user,
+  tasks,
+  people,
+  archived = null,
+  today = new Date(),
+}) {
+  const shown = archived !== null;
+  const rows = taskRows(tasks, today, (task) =>
+    task.status === "done" ? taskButton(task, "archive", "Archive", shown) : "",
+  );
+  const archivedRows = shown
+    ? taskRows(archived, today, (task) =>
+        taskButton(task, "restore", "Restore", true),
+      )
+    : "";
   return layout({
     title: "Tasks",
     user,
@@ -94,9 +118,9 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   <p class="muted">${tasks.filter((task) => task.status !== "done").length} open</p>
 </div>
 <table class="card">
-  <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th></tr></thead>
+  <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th><th></th></tr></thead>
   <tbody>
-${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
+${rows || `<tr><td colspan="5" class="muted">No tasks yet</td></tr>`}
   </tbody>
 </table>
 <form class="card add" method="post" action="/tasks">
@@ -107,7 +131,19 @@ ${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
   </select>
   <input name="dueOn" type="date">
   <button class="primary">Add</button>
-</form>`,
+</form>
+<p class="archived-toggle">${shown ? `<a href="/">Hide archived</a>` : `<a href="/?archived=1">Show archived</a>`}</p>
+${
+  shown
+    ? `<h2>Archived</h2>
+<table class="card archived">
+  <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th><th></th></tr></thead>
+  <tbody>
+${archivedRows || `<tr><td colspan="5" class="muted">No archived tasks</td></tr>`}
+  </tbody>
+</table>`
+    : ""
+}`,
   });
 }
 
