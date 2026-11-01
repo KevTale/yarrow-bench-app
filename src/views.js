@@ -11,8 +11,6 @@ export const escape = (value) =>
 
 export const STATUS = { todo: "To do", doing: "Doing", done: "Done" };
 
-export const PRIORITY = { low: "Low", normal: "Normal", high: "High" };
-
 const DAY = 24 * 60 * 60 * 1000;
 const dayStart = (date) =>
   Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
@@ -38,12 +36,12 @@ function layout({ title, user, body }) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${escape(title)} · Tally</title>
+<title>${escape(title)} · Acme</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="/">Tally</a>
+  <a class="brand" href="/">Acme</a>
   ${
     user
       ? `<nav>
@@ -56,7 +54,7 @@ function layout({ title, user, body }) {
 </header>
 ${
   user
-    ? `<div class="promo">Tally Pro is here: unlimited projects, reports and guests. <a href="https://tally.dev/pro">Try it free for 14 days</a></div>`
+    ? `<div class="promo">Acme Pro is here: unlimited projects, reports and guests. <a href="https://acme.dev/pro">Try it free for 14 days</a></div>`
     : ""
 }
 <main>${body}</main>
@@ -81,7 +79,7 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   const rows = tasks
     .map(
       (task) => `<tr>
-    <td>${escape(task.title)}${task.priority === "high" ? ` <span class="priority high">High</span>` : ""}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
+    <td>${escape(task.title)}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
     <td><span class="status ${escape(task.status)}">${STATUS[task.status]}</span></td>
     <td>${escape(task.assignee ?? "Nobody")}</td>
     <td class="${formatDue(task.due_on, today).startsWith("Overdue") ? "late" : ""}">${escape(formatDue(task.due_on, today))}</td>
@@ -108,14 +106,6 @@ ${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
     ${people.map((person) => `<option value="${person.id}">${escape(person.name)}</option>`).join("")}
   </select>
   <input name="dueOn" type="date">
-  <select name="priority" aria-label="Priority">
-    ${Object.entries(PRIORITY)
-      .map(
-        ([value, label]) =>
-          `<option value="${value}"${value === "normal" ? " selected" : ""}>${label} priority</option>`,
-      )
-      .join("")}
-  </select>
   <button class="primary">Add</button>
 </form>`,
   });
