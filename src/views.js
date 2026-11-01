@@ -75,16 +75,27 @@ export function loginPage({ error } = {}) {
   });
 }
 
-export function tasksPage({ user, tasks, people, today = new Date() }) {
-  const rows = tasks
-    .map(
-      (task) => `<tr>
+export function tasksPage({
+  user,
+  tasks,
+  people,
+  archived = null,
+  today = new Date(),
+}) {
+  // Forms keep the archived list open when it is.
+  const query = archived ? "?archived=1" : "";
+  const row = (task, action) => `<tr>
     <td>${escape(task.title)}${task.comments ? ` <span class="comments" title="${task.comments} comment${task.comments === 1 ? "" : "s"}">${task.comments}</span>` : ""}</td>
     <td><span class="status ${escape(task.status)}">${STATUS[task.status]}</span></td>
     <td>${escape(task.assignee ?? "Nobody")}</td>
     <td class="${formatDue(task.due_on, today).startsWith("Overdue") ? "late" : ""}">${escape(formatDue(task.due_on, today))}</td>
-  </tr>`,
-    )
+    <td class="action">${action}</td>
+  </tr>`;
+  const button = (task, verb) =>
+    `<form method="post" action="/tasks/${Number(task.id)}/${verb.toLowerCase()}${query}"><button class="small">${verb}</button></form>`;
+  const head = `<thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th><th></th></tr></thead>`;
+  const rows = tasks
+    .map((task) => row(task, task.status === "done" ? button(task, "Archive") : ""))
     .join("\n");
   return layout({
     title: "Tasks",
@@ -94,9 +105,9 @@ export function tasksPage({ user, tasks, people, today = new Date() }) {
   <p class="muted">${tasks.filter((task) => task.status !== "done").length} open</p>
 </div>
 <table class="card">
-  <thead><tr><th>Task</th><th>Status</th><th>Assignee</th><th>Due</th></tr></thead>
+  ${head}
   <tbody>
-${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
+${rows || `<tr><td colspan="5" class="muted">No tasks yet</td></tr>`}
   </tbody>
 </table>
 <form class="card add" method="post" action="/tasks">
@@ -107,7 +118,19 @@ ${rows || `<tr><td colspan="4" class="muted">No tasks yet</td></tr>`}
   </select>
   <input name="dueOn" type="date">
   <button class="primary">Add</button>
-</form>`,
+</form>
+${
+  archived
+    ? `<p class="archive-link"><a href="/">Hide archived</a></p>
+<h2>Archived</h2>
+<table class="card">
+  ${head}
+  <tbody>
+${archived.map((task) => row(task, button(task, "Restore"))).join("\n") || `<tr><td colspan="5" class="muted">No archived tasks</td></tr>`}
+  </tbody>
+</table>`
+    : `<p class="archive-link"><a href="/?archived=1">Show archived</a></p>`
+}`,
   });
 }
 
