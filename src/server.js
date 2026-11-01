@@ -9,8 +9,10 @@ import {
 } from "./auth.js";
 import {
   addTask,
+  archiveTask,
   listTasks,
   listUsers,
+  restoreTask,
   updateSettings,
   userByEmail,
   userById,
@@ -55,8 +57,13 @@ app.post("/logout", (_req, res) => {
 });
 
 app.get("/", signedIn, async (req, res) => {
-  const [tasks, people] = await Promise.all([listTasks(), listUsers()]);
-  res.send(tasksPage({ user: req.user, tasks, people }));
+  const showArchived = req.query.archived === "1";
+  const [tasks, people, archived] = await Promise.all([
+    listTasks({ archived: false }),
+    listUsers(),
+    showArchived ? listTasks({ archived: true }) : null,
+  ]);
+  res.send(tasksPage({ user: req.user, tasks, people, archived }));
 });
 
 app.post("/tasks", signedIn, async (req, res) => {
@@ -68,6 +75,21 @@ app.post("/tasks", signedIn, async (req, res) => {
       dueOn: req.body.dueOn,
     });
   res.redirect("/");
+});
+
+// Archive a done task, or restore an archived one, then back to the list as it was.
+const back = (req) => (req.query.archived === "1" ? "/?archived=1" : "/");
+
+app.post("/tasks/:id/archive", signedIn, async (req, res) => {
+  const id = Number(req.params.id);
+  if (Number.isInteger(id) && id > 0 && id < 2 ** 31) await archiveTask(id);
+  res.redirect(back(req));
+});
+
+app.post("/tasks/:id/restore", signedIn, async (req, res) => {
+  const id = Number(req.params.id);
+  if (Number.isInteger(id) && id > 0 && id < 2 ** 31) await restoreTask(id);
+  res.redirect(back(req));
 });
 
 app.get("/settings", signedIn, (req, res) =>

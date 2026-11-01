@@ -39,11 +39,19 @@ export async function countComments(taskId) {
   return rows[0].count;
 }
 
-/** Every task, with its assignee's name and how many comments it has. */
-export async function listTasks() {
+/**
+ * Tasks with their assignee's name and how many comments they have:
+ * every task, or only the archived ones (archived: true) or the others (archived: false).
+ */
+export async function listTasks({ archived } = {}) {
+  const where =
+    archived === undefined
+      ? ""
+      : `WHERE tasks.archived_at IS ${archived ? "NOT NULL" : "NULL"}`;
   const { rows } = await pool.query(
     `SELECT tasks.id, tasks.title, tasks.status, tasks.due_on, users.name AS assignee
      FROM tasks LEFT JOIN users ON users.id = tasks.assignee_id
+     ${where}
      ${ORDER}`,
   );
   for (const task of rows) task.comments = await countComments(task.id);
@@ -66,6 +74,18 @@ export async function addTask({ title, assigneeId, dueOn }) {
     "INSERT INTO tasks (title, assignee_id, due_on) VALUES ($1, $2, $3)",
     [title, assigneeId || null, dueOn || null],
   );
+}
+
+/** Only a done task can be archived. */
+export async function archiveTask(id) {
+  await pool.query(
+    "UPDATE tasks SET archived_at = now() WHERE id = $1 AND status = 'done' AND archived_at IS NULL",
+    [id],
+  );
+}
+
+export async function restoreTask(id) {
+  await pool.query("UPDATE tasks SET archived_at = NULL WHERE id = $1", [id]);
 }
 
 export async function updateSettings(id, { name, weeklyDigest }) {

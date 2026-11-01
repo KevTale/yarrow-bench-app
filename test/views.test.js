@@ -34,6 +34,30 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("only done tasks can be archived, and archived ones can be restored", () => {
+  const tasks = [
+    { id: 1, title: "A", status: "todo", assignee: null, due_on: null },
+    { id: 2, title: "B", status: "done", assignee: null, due_on: null },
+  ];
+  const html = tasksPage({ user: { name: "Demo" }, people: [], today, tasks });
+  assert.doesNotMatch(html, /\/tasks\/1\/archive/);
+  assert.match(html, /action="\/tasks\/2\/archive"/);
+  assert.match(html, /href="\/\?archived=1">Show archived</);
+  assert.doesNotMatch(html, /Restore/);
+
+  const open = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [],
+    archived: [
+      { id: 3, title: "C", status: "done", assignee: null, due_on: null },
+    ],
+  });
+  assert.match(open, /action="\/tasks\/3\/restore\?archived=1"/);
+  assert.match(open, />Hide archived</);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },

@@ -199,3 +199,29 @@ select {
   color: #4a5160;
   text-decoration: none;
 }
+h2 {
+  margin: 0 0 12px;
+  font-size: 17px;
+}
+.action {
+  text-align: right;
+}
+.action form {
+  margin: 0;
+}
+.small {
+  font: inherit;
+  font-size: 13px;
+  padding: 1px 10px;
+  color: #4a5160;
+  background: #fff;
+  border: 1px solid #d5d9e0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.archive-link {
+  margin: 16px 0;
+}
+.archive-link a {
+  color: #4b3fd8;
+}
