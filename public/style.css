@@ -114,6 +114,21 @@ tbody tr:last-child td {
 .late {
   color: #c2412d;
 }
+.priority {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: #eef0f3;
+  color: #4a5160;
+  font-size: 12px;
+  font-weight: 600;
+  vertical-align: 1px;
+}
+.priority.urgent {
+  background: #fde8e4;
+  color: #c2412d;
+}
 .add {
   display: flex;
   gap: 10px;

@@ -34,6 +34,26 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("badges tasks that are not normal priority and offers a picker", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [
+      { title: "Fire", status: "todo", priority: "urgent", due_on: null },
+      { title: "Calm", status: "todo", priority: "normal", due_on: null },
+      { title: "Later", status: "todo", priority: "low", due_on: null },
+    ],
+  });
+  assert.match(html, /Fire <span class="priority urgent">Urgent<\/span>/);
+  assert.match(html, /Later <span class="priority low">Low<\/span>/);
+  assert.doesNotMatch(html, /class="priority normal"/);
+  assert.match(html, /<select name="priority"/);
+  assert.match(html, /<option value="low">Low priority<\/option>/);
+  assert.match(html, /<option value="normal" selected>Normal priority/);
+  assert.match(html, /<option value="urgent">Urgent priority<\/option>/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },

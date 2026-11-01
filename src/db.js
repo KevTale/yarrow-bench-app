@@ -28,8 +28,9 @@ export async function usersWithDigest() {
   return rows;
 }
 
-const ORDER = `ORDER BY CASE tasks.status WHEN 'doing' THEN 0 WHEN 'todo' THEN 1 ELSE 2 END,
+const BY_STATUS = `CASE tasks.status WHEN 'doing' THEN 0 WHEN 'todo' THEN 1 ELSE 2 END,
               tasks.due_on NULLS LAST, tasks.id`;
+const ORDER = `ORDER BY ${BY_STATUS}`;
 
 export async function countComments(taskId) {
   const { rows } = await pool.query(
@@ -39,12 +40,12 @@ export async function countComments(taskId) {
   return rows[0].count;
 }
 
-/** Every task, with its assignee's name and how many comments it has. */
+/** Every task, urgent ones first, with its assignee's name and how many comments it has. */
 export async function listTasks() {
   const { rows } = await pool.query(
-    `SELECT tasks.id, tasks.title, tasks.status, tasks.due_on, users.name AS assignee
+    `SELECT tasks.id, tasks.title, tasks.status, tasks.priority, tasks.due_on, users.name AS assignee
      FROM tasks LEFT JOIN users ON users.id = tasks.assignee_id
-     ${ORDER}`,
+     ORDER BY tasks.priority = 'urgent' DESC, ${BY_STATUS}`,
   );
   for (const task of rows) task.comments = await countComments(task.id);
   return rows;
@@ -61,10 +62,10 @@ export async function tasksOf(userId) {
   return rows;
 }
 
-export async function addTask({ title, assigneeId, dueOn }) {
+export async function addTask({ title, assigneeId, dueOn, priority }) {
   await pool.query(
-    "INSERT INTO tasks (title, assignee_id, due_on) VALUES ($1, $2, $3)",
-    [title, assigneeId || null, dueOn || null],
+    "INSERT INTO tasks (title, assignee_id, due_on, priority) VALUES ($1, $2, $3, $4)",
+    [title, assigneeId || null, dueOn || null, priority],
   );
 }
 
