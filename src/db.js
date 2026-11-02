@@ -42,7 +42,7 @@ export async function countComments(taskId) {
 /** Every task, with its assignee's name and how many comments it has. */
 export async function listTasks() {
   const { rows } = await pool.query(
-    `SELECT tasks.id, tasks.title, tasks.status, tasks.due_on, users.name AS assignee
+    `SELECT tasks.id, tasks.title, tasks.status, tasks.priority, tasks.due_on, users.name AS assignee
      FROM tasks LEFT JOIN users ON users.id = tasks.assignee_id
      ${ORDER}`,
   );
@@ -61,10 +61,10 @@ export async function tasksOf(userId) {
   return rows;
 }
 
-export async function addTask({ title, assigneeId, dueOn }) {
+export async function addTask({ title, assigneeId, dueOn, priority }) {
   await pool.query(
-    "INSERT INTO tasks (title, assignee_id, due_on) VALUES ($1, $2, $3)",
-    [title, assigneeId || null, dueOn || null],
+    "INSERT INTO tasks (title, assignee_id, due_on, priority) VALUES ($1, $2, $3, $4)",
+    [title, assigneeId || null, dueOn || null, priority],
   );
 }
 
