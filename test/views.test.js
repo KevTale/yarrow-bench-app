@@ -34,6 +34,20 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("a done task with a past due date is not overdue", () => {
+  const html = tasksPage({
+    user: { name: "Demo" },
+    people: [],
+    today,
+    tasks: [
+      { title: "Finished", status: "done", assignee: null, due_on: new Date(2026, 9, 13) },
+      { title: "Still open", status: "todo", assignee: null, due_on: new Date(2026, 9, 13) },
+    ],
+  });
+  assert.match(html, /<td class="">Oct 13<\/td>/);
+  assert.match(html, /<td class="late">Overdue · Oct 13<\/td>/);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
