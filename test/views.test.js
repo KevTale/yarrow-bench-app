@@ -34,6 +34,32 @@ test("lists tasks and counts the open ones", () => {
   assert.match(html, /Nobody/);
 });
 
+test("filters tasks by status and counts each filter", () => {
+  const tasks = [
+    { title: "A", status: "todo", assignee: null, due_on: null },
+    { title: "B", status: "doing", assignee: null, due_on: null },
+    { title: "C", status: "doing", assignee: null, due_on: null },
+    { title: "D", status: "done", assignee: null, due_on: null },
+  ];
+  const all = tasksPage({ user: { name: "Demo" }, people: [], today, tasks });
+  assert.match(all, /All \(4\)/);
+  assert.match(all, /To do \(1\)/);
+  assert.match(all, /Doing \(2\)/);
+  assert.match(all, /Done \(1\)/);
+  assert.match(all, /href="\/\?status=doing"/);
+
+  const doing = tasksPage({ user: { name: "Demo" }, people: [], today, tasks, status: "doing" });
+  assert.match(doing, />B</);
+  assert.match(doing, />C</);
+  assert.doesNotMatch(doing, />A</);
+  assert.doesNotMatch(doing, />D</);
+  // Counts still describe every task, not just the ones shown.
+  assert.match(doing, /All \(4\)/);
+
+  const bogus = tasksPage({ user: { name: "Demo" }, people: [], today, tasks, status: "bogus" });
+  assert.match(bogus, />A</);
+});
+
 test("the settings page keeps the name typed", () => {
   const html = settingsPage({
     user: { name: "Ann <3", email: "a@b.c" },
