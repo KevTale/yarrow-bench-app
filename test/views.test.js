@@ -43,6 +43,16 @@ test("the settings page keeps the name typed", () => {
   assert.match(html, /Saved/);
 });
 
+test("the settings save button is marked to stand out", () => {
+  const html = settingsPage({
+    user: { name: "Ann", email: "a@b.c" },
+    saved: false,
+  });
+  assert.match(html, /<button class="primary save">Save<\/button>/);
+  const tasks = tasksPage({ user: { name: "Ann" }, people: [], tasks: [], today });
+  assert.match(tasks, /<button class="primary">Add<\/button>/);
+});
+
 test("a session cookie cannot be forged", () => {
   const value = sessionValue(7, "secret");
   assert.equal(readSession(value, "secret"), 7);
