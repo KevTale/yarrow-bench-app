@@ -219,3 +219,6 @@ select {
   color: #4a5160;
   text-decoration: none;
 }
+.settings .primary {
+  background: #1d7a4c;
+}
